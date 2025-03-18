@@ -13,15 +13,31 @@ function ItemDetail() {
   const item = !!itemId && getItemDetail(itemId);
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart.items);
+  const [selectedSize, setSelectedSize] = useState(item?.size || "S");
   const [isAdded, setIsAdded] = useState(
     cart.findIndex((c) => c.id === itemId) > -1
   );
 
   useEffect(() => {
     console.log("useEffect çalıştı", isAdded);
-    // Her cart değiştiğinde isAdded state'ini güncelle
-    setIsAdded(cart.findIndex((c) => c.id === itemId) > -1);
-  }, [cart, itemId]);
+
+    setIsAdded(
+      cart.findIndex(
+        (c) => c.id === itemId && c.selectedSize === selectedSize
+      ) > -1
+    );
+  }, [cart, itemId, selectedSize]);
+
+  const handleAddToCart = () => {
+    const itemWithSize = {
+      ...item,
+      selectedSize,
+
+      cartItemId: `${item.id}-${selectedSize}`,
+    };
+    dispatch(addToCart(itemWithSize));
+    setIsAdded(true);
+  };
 
   return (
     <div className="item-detail-container">
@@ -37,7 +53,18 @@ function ItemDetail() {
           <div className="item-name">{item.name}</div>
           <div className="item-price">${item.price}</div>
 
-          <select className="item-size">
+          <select
+            className="item-size"
+            value={selectedSize}
+            onChange={(e) => {
+              setSelectedSize(e.target.value);
+              setIsAdded(
+                cart.findIndex(
+                  (c) => c.id === itemId && c.selectedSize === e.target.value
+                ) > -1
+              );
+            }}
+          >
             <option value={"S"}> Boyut seçin (S)</option>
             <option value={"M"}> Boyut seçin (M)</option>
             <option value={"L"}> Boyut seçin (L)</option>
@@ -46,10 +73,7 @@ function ItemDetail() {
           <button
             className="item-btn"
             disabled={isAdded}
-            onClick={() => {
-              dispatch(addToCart(item));
-              setIsAdded(true);
-            }}
+            onClick={handleAddToCart}
           >
             {isAdded ? <Link to="/cart">Sepete Git</Link> : "Sepete Ekle"}
           </button>

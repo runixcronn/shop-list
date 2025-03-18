@@ -15,9 +15,12 @@ function Cart() {
         <>
           <div className="cart-list">
             {cart.map((item) => (
-              <div className="cart-item" key={item.id}>
+              <div className="cart-item" key={item.cartItemId || item.id}>
                 <div className="item-price">${item.price}</div>
                 <div className="item-name">{item.name}</div>
+                {item.selectedSize && (
+                  <div className="item-size">Boyut: {item.selectedSize}</div>
+                )}
                 <div className="item-expectedDelivery">
                   (Beklenen Teslimat Süresi 3 - 6 gün)
                 </div>
